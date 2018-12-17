@@ -1,5 +1,3 @@
-#Go Reading List
-
 #### Go Internal
 [深入了解go](https://tiancaiamao.gitbooks.io/go-internals/content/zh/)
 
