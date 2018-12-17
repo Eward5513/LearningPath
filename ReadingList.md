@@ -1,4 +1,4 @@
-##Go Reading List
+#Go Reading List
 
 #### Go Internal
 [深入了解go](https://tiancaiamao.gitbooks.io/go-internals/content/zh/)
@@ -12,6 +12,7 @@
 
 #### Scheduler
 [Scheduler Design](https://docs.google.com/document/d/1TTj4T2JO42uD5ID9e89oa0sLKhJYD0Y_kqxDv3I3XMw/edit#)
+
 [The Go Scheduler](http://morsmachine.dk/go-scheduler)
 
 #### Memory Model
