@@ -128,8 +128,8 @@ func main() {
    > [{1} {2} {3} {4}]\
      [{1} {2} {3} {4}]\
      map[1:{1} 2:{2} 3:{3} 4:{4}]
-   - 如果想修改Slice/Array中结构体数据的值，可以保存结构体数据的指针或者使用索引遍历。
-   对于Map，如果保存指针则可以直接修改结构体的某个域，否则使用索引遍历不能直接修改结构体数据中的某个域。
+   - 如果想修改Slice/Array中结构体数据的某个域，可以保存结构体数据的指针或者使用索引遍历。
+   对于Map，只有保存指针才可以直接修改。
    
 ```go
 func main() {
@@ -141,7 +141,7 @@ func main() {
 	for _, it := range array {
 		it.data = 1 				// 可以修改原数组中的结构体数据
 	}
-	for i := range slice {
+	for i := 0; i < len(slice); i++ {
 		slice[i].data = 1 			// 可以修改原slice中的结构体数据
 	}
 	for i := range testMap1 {
@@ -188,7 +188,6 @@ func main() {
    	for i := 1; i < len(str1); i++ {
    		fmt.Printf("%c", str1[i])       //每次步进一个字节
    	}
-   	fmt.Println()
    }
    ```
    > 这 0\
