@@ -90,5 +90,15 @@ func getArray(array3 [4]int) [4]int {
      array2: [-1 -2 -3 -4], 0xc42000a080\
      array4: [-1 -2 -3 -4], 0xc42000a0a0
      
-Slice 实际上是一个包含数据指针
+   结论：Slice实际上是一个包含数据指针，长度(len)和最大长度(cap)的结构体。数据指针指向实际的底层数组([]int{1,2,3,4})，而且切片操作会创建
+一个新的结构体，这个结构体的数据指针指向原底层数组。所以对于Slice的赋值操作(包括函数传值和函数返回值)，新的切片是可以修改原切片
+的数据。
+
+[Go Slices: usage and internals](https://blog.golang.org/go-slices-usage-and-internals)
+
+#### 2.About range and loop with index
+Range 和 普通的for循环都可以遍历数组/Slice/Map，字符串在Go中实际上是不可变的byte slice,也可以用这两种方式遍历，但是以下讨论不包括range channel.
+
+  - Range 得到的value值是原值的拷贝，无法通过value值修改原Slice/Array/Map
+
 
