@@ -334,7 +334,59 @@ Range和普通的for循环都可以遍历Array/Slice/Map，字符串在Go中实�
                 fmt.Println("sender time out")
             }
             fmt.Println("sender continues")
+            // do something
         }()
         time.Sleep(5 * time.Second)
     }
 ```
+   > sender time out\
+     sender continues\
+     sender time out\
+     sender continues\
+     sender time out\
+     sender continues\
+     sender time out\
+     sender continues
+     
+   * 如果select中有多个case有消息需要处理，执行哪个case是随机的，各个case的执行顺序也是随机的。如下代码利用在值为nil的channel
+   上收发都会阻塞的特点实现了按一定顺序从各个channel中收发消息，工程代码慎用。。。
+```go
+    func main() {
+        ch1 := make(chan int)
+        ch2 := make(chan int)
+        go func(ch1, ch2 chan int) {
+            var cha = ch1
+            var chb chan int
+            for {
+                select {
+                case a := <-cha:
+                    fmt.Println("receive from cha", a)
+                    cha = nil  // 从ch1中收到数据后将cha置为nil，停止从ch1中收取消息
+                    chb = ch2  // 准备从ch2中收取消息
+                case b := <-chb:
+                    fmt.Println("receive from chb", b)
+                    chb = nil  // 从ch2中收到数据后将chb置为nil，停止从ch2中收取消息
+                    cha = ch1  // 准备从ch1中收取消息
+                }
+            }
+        }(ch1, ch2)
+    
+        sequence := []int{1, 2, 3}
+        for i := range sequence {
+            go func(x int) { ch1 <- x }(i)
+        }
+        for i := range sequence {
+            go func(x int) { ch2 <- x }(i)
+        }
+        time.Sleep(5 * time.Second)
+    }
+```
+   > receive from cha 0\
+     receive from chb 0\
+     receive from cha 1\
+     receive from chb 1\
+     receive from cha 2\
+     receive from chb 2
+     
+   * 多个channel交互时，消息流最好能够单向流动
+   * 关于函数闭包。。defer 和循环中的函数
