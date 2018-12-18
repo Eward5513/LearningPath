@@ -388,5 +388,47 @@ Range和普通的for循环都可以遍历Array/Slice/Map，字符串在Go中实�
      receive from cha 2\
      receive from chb 2
      
-   * 多个channel交互时，消息流最好能够单向流动
-   * 关于函数闭包。。defer 和循环中的函数
+   * 设计多个channel交互时，消息最好能够单向流动。
+```go
+    func main() {
+        ch1 := make(chan int)
+        ch2 := make(chan int)
+        report := make(chan int)
+        go func(chb, rep chan int) {        // goroutine #1
+            for {
+                select {
+                case a := <-chb:
+                    fmt.Println("receive from cha", a)
+                    // do something
+                    time.Sleep(time.Second)
+                    //...something is wrong, report to upper goroutine
+                    rep <- 1
+                }
+            }
+        }(ch2, report)
+        go func(cha, chb, rep chan int) {   // goroutine #2
+            for {
+                select {
+                case rec := <-cha:
+                    fmt.Println("send message")
+                    // do something
+                    time.Sleep(3 * time.Second)
+                    chb <- rec
+                case re := <-rep:
+                    fmt.Println("ask goroutinue to exit", re)
+                }
+            }
+        }(ch1, ch2, report)
+        for {
+            ch1 <- 1
+        }
+    }
+```
+   > send message\
+     receive from cha 1\
+     send message\
+     fatal error: all goroutines are asleep - deadlock!
+
+主协程一直给#2协程发送消息，#2进行一些处理后给#1发消息，#1在处理消息后想report给#2，可是
+这时#2在执行第一个case想给#1发消息，造成死锁。解决方法包括将不带缓冲的channel改成带缓冲的
+channel，#1report给#2在新的协程中执行，在#1和#2的下游增加协程处理汇总信息保证单向流动等。
