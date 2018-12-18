@@ -388,7 +388,7 @@ Range和普通的for循环都可以遍历Array/Slice/Map，字符串在Go中实�
      receive from cha 2\
      receive from chb 2
      
-   * 设计多个channel交互时，消息最好能够单向流动。
+   * 设计多个channel交互时，消息最好能够单向流动，否则要注意死锁的情况。
 ```go
     func main() {
         ch1 := make(chan int)
@@ -429,9 +429,5 @@ Range和普通的for循环都可以遍历Array/Slice/Map，字符串在Go中实�
      send message\
      fatal error: all goroutines are asleep - deadlock!
 
-主协程一直给#2协程发送消息，#2进行一些处理后给#1发消息，#1在处理消息后想report给#2，可是
-这时#2持续收到主协程发的消息，处理完成后尝试发消息给#1，但是#1此时无法接收#2的消息，因为
-此时#1在尝试给#2的report管道发送消息，#2无法从report管道接收消息因为它此时阻塞在第一个case
-中，造成死锁.
 解决方法包括将不带缓存的channel改成带缓存的channel，#1report给#2在新的协程中执行，在#1和#2
 的下游增加协程处理汇总信息保证单向流动等。
